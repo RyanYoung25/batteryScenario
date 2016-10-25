@@ -1,0 +1,59 @@
+% Start State= 
+% ok(battery), chargeLevel(battery)=0%, state(disconnected)
+% Goal State=
+% ok(battery), chargeLevel(battery)=100%, state(disconnected)
+
+%Define the types
+battery(b). 
+conn_state(connceted). 
+conn_state(disconnected). 
+conn_state(badly_connected).
+#const n=10
+step(0..n)
+
+%Define the fluents
+fluent(inertial, state(C)) :- conn_state(C).
+fluent(inertial, charging(B)) :- battery(B).
+%Are these supposed to be inertial?
+fluent(inertial, ok(B)) :- battery(B).
+fluent(inertial, misaligned).
+% Numerical fluent chargeLevel
+fluent(numerical, chargeLevel(B)) :- battery(B).
+
+
+%Define the actions
+action(agent, insert(B)) :- battery(B).
+action(agent, remove(B)) :- battery(B).
+
+action(exogenous, fail(B)) :- battery(B).
+action(agent, repair(B)) :- battery(B).
+
+%Shoud these be agent actions? 
+action(agent, beginCharge(B)) :- battery(B).
+action(agent, endCharge(B)) :- battery(B).
+
+action(exogenous, accidental_misalignment).
+
+
+%Insert the battery into the charger
+holds(state(connected), S+1) :- occurs(insert(B), S), holds(state(disconnected), S), not holds(misaligned, S), battery(B), step(S).
+holds(state(badly_connected), S+1) :- occurs(insert(B), S), holds(state(disconnected), S), holds(misaligned, S), battery(B), step(S).
+
+%Remove the battery from the charger
+holds(state(disconnected), S+1) :- occurs(remove(B), S), not holds(state(disconnected), S), battery(B), step(S).
+
+% Exog action fail
+-holds(ok(B), S+1) :- occurs(fail(B), S), battery(B), step(S).
+
+% Repair the battery
+holds(ok(B), S+1) :- occurs(repair(B), S), battery(B), step(S).
+
+%Exog action misalignment
+holds(misaligned, S+1) :- occurs(accidental_misalignment, S), step(S).
+
+
+%Attempt at writing the charging. 
+v_final(chargeLevel(B), S) = 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S)))  :-  holds(charging(B), S), step(S), battery(B).
+holds(charging(B), S) :- occurs(beginCharge(B), S), step(S), battery(B).
+-holds(charging(B), S) :- occurs(endCharge(B), S), step(S), battery(B). 
+
