@@ -1,0 +1,101 @@
+% Start State= 
+% ok(battery), chargeLevel(battery)=0%, state(disconnected)
+% Goal State=
+% ok(battery), chargeLevel(battery)=100%, state(disconnected)
+
+%Define the types
+battery(b). 
+conn_state(connected). 
+conn_state(disconnected). 
+conn_state(badly_connected).
+#const n=10.
+step(0..n).
+
+%Define the fluents
+fluent(inertial, state(C)) :- conn_state(C).
+fluent(inertial, charging(B)) :- battery(B).
+%Are these supposed to be inertial?
+fluent(inertial, ok(B)) :- battery(B).
+fluent(inertial, misaligned).
+% Numerical fluent chargeLevel
+fluent(numerical, chargeLevel(B)) :- battery(B).
+% cspvars 
+
+cspvar(tstart(I)) :- step(I).
+required(tstart(I) >= 0) :- step(I).
+cspvar(tend(I)) :- step(I).
+required(tend(I) > tstart(I)) :- step(I).
+
+cspvar(v_initial(chargeLevel(B), I)) :- battery(B), step(I).
+cspvar(v_final(chargeLevel(B), I)) :- battery(B), step(I).
+
+%Define the actions
+action(agent, insert(B)) :- battery(B).
+action(agent, remove(B)) :- battery(B).
+
+action(exogenous, fail(B)) :- battery(B).
+action(agent, repair(B)) :- battery(B).
+
+action(agent, start(charge(B))) :- battery(B).
+action(agent, end(charge(B))) :- battery(B).
+
+action(exogenous, bump).
+
+%Casual Laws
+%Insert the battery into the charger
+holds(state(connected), S+1) :- occurs(insert(B), S), -holds(misaligned, S), battery(B), step(S).
+holds(state(badly_connected), S+1) :- occurs(insert(B), S),  holds(misaligned, S), battery(B), step(S).
+%Executability condition
+-occurs(insert(B), S) :- -holds(state(disconnected), S), battery(B), step(S).
+
+%Casual Laws
+%Remove the battery from the charger Add realignment
+holds(state(disconnected), S+1) :- occurs(remove(B), S), battery(B), step(S).
+-holds(misaligned, S+1) :- occurs(remove(B), S), battery(B), step(S).
+%Executability Condition
+-occurs(remove(B), S) :- holds(state(disconnected), S), battery(B), step(S).
+
+% Exog action fail
+-holds(ok(B), S+1) :- occurs(fail(B), S), battery(B), step(S).
+
+%Casual Law
+% Repair the battery
+holds(ok(B), S+1) :- occurs(repair(B), S), battery(B), step(S).
+%Executability Condition
+-occurs(repair(B), S) :- holds(ok(B)), battery(B), step(S).
+
+%Exog action misalignment
+holds(misaligned, S+1) :- occurs(bump, S), step(S).
+
+%Attempt at writing the charging. surround head with required
+required(v_final(chargeLevel(B), S) = 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) < 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
+
+%Casual Laws
+%Start charging
+holds(charging(B), S) :- occurs(start(charge(B)), S), step(S), battery(B).
+%Executability Condition
+-occurs(start(charge(B)), S) :- holds(state(disconnected), S), battery(B), step(S).
+-occurs(start(charge(B)), S) :- holds(charging(B)), battery(B), step(S).
+
+%End Charging
+%Casual Law
+-holds(charging(B), S) :- occurs(end(charge(B)), S), step(S), battery(B). 
+%Executability Condition
+-occurs(end(charge(B)), S) :- -holds(charging(B), S), battery(B), step(S).
+
+%
+
+%Encode intertia
+holds(F, S+1) :- step(S), fluent(intertial, F), holds(F, S), not -holds(F, S+1).
+-holds(F, S+1) :- step(S), fluent(intertial, F), -holds(F, S), not holds(F, S+1).
+
+%Encode cwa for defined fluents, we don't have defined fluents but good practice
+-holds(F, S) :- step(S), fluent(defined, F), not holds(F, S).
+
+%Constants I'm trying to use to test. 
+holds(state(disconnected), 0). 
+-holds(misaligned, 0).
+holds(ok(b)).
+
+occurs(insert(b), 1).
