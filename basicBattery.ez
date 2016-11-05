@@ -10,7 +10,7 @@ battery(b).
 conn_state(connected). 
 conn_state(disconnected). 
 conn_state(badly_connected).
-#const n=3.
+#const n=10.
 step(0..n).
 
 %Define the fluents
@@ -69,6 +69,7 @@ holds(state(disconnected), S+1) :- occurs(remove(B), S), battery(B), step(S).
 -holds(misaligned, S+1) :- occurs(remove(B), S), battery(B), step(S).
 %Executability Condition
 -occurs(remove(B), S) :- holds(state(disconnected), S), battery(B), step(S).
+-occurs(remove(B), S) :- holds(charging(B), S), battery(B), step(S).
 
 % Exog action fail
 -holds(ok(B), S+1) :- occurs(fail(B), S), battery(B), step(S).
@@ -77,13 +78,15 @@ holds(state(disconnected), S+1) :- occurs(remove(B), S), battery(B), step(S).
 % Repair the battery
 holds(ok(B), S+1) :- occurs(repair(B), S), battery(B), step(S).
 %Executability Condition
--occurs(repair(B), S) :- holds(ok(B)), battery(B), step(S).
+-occurs(repair(B), S) :- holds(ok(B), S), battery(B), step(S).
 
 %Exog action misalignment
 holds(misaligned, S+1) :- occurs(bump, S), step(S).
 
 %Attempt at writing the charging. surround head with required
-required(v_final(chargeLevel(B), S) = 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
+%required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp("-0.05" *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1 *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
+%required(v_final(chargeLevel(B), S) <= 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S)==v_initial(chargeLevel(B), S) + 10*(tend(S)-tstart(S)))  :-  holds(charging(B), S), step(S), battery(B).
 ab(chargeLevel(B), S)  :-  holds(charging(B), S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) < 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
@@ -109,21 +112,21 @@ holds(F, S2) :- step(S), fluent(inertial, F), holds(F, S), not -holds(F, S2), S2
 -holds(F, S) :- step(S), fluent(defined, F), not holds(F, S).
 
 %Constants I'm trying to use to test. 
-holds(state(disconnected), 0). 
--holds(misaligned, 0).
-holds(ok(b), 0).
-required(tstart(0)==0).
-required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
+%holds(state(disconnected), 0). 
+%-holds(misaligned, 0).
+%holds(ok(b), 0).
+%required(tstart(0)==0).
+%required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
 
 %Steps of a plan. Is this consistent? 
-occurs(insert(b), 0).
-occurs(start(charge(b)), 1).
-occurs(end(charge(b)), 2).
+%occurs(insert(b), 0).
+%occurs(start(charge(b)), 1).
+%occurs(end(charge(b)), 2).
 
 %add some 
 %required(tend(2)==2).
 
-required(v_final(chargeLevel(B), 3)==100) :- battery(B).
+%required(v_final(chargeLevel(B), 3)==100) :- battery(B).
 
 %Minimize total step size, iterative? Error threshold, continue until the interval delta is less than N.
 

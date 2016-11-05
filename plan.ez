@@ -1,0 +1,28 @@
+%Planning module for the battery scenarios
+% we are not equipped for multiple starts of charge
+%:- occurs(start(charge(B)),I1), occurs(start(charge(B),I2), I1!=I2, battery(B), step(I1), step(I2).
+
+% planning: we can accelerate or decelerate
+0{occurs(A,S): action(agent, A) }1 :- step(S), not goal(S).
+
+% to preserve the semantics of processes, no actions are allowed while a process is terminating
+%:- occurs(end(moving),I), occurs(A,I), A!=end(moving).
+
+success :- goal(S), step(S), S < n.
+:- not success. %Failure is not an option
+
+
+
+%Initial state:
+holds(state(disconnected), 0). 
+holds(misaligned, 0).
+holds(ok(b), 0).
+required(tstart(0)==0).
+required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
+
+%Goal state:
+
+
+goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), battery(B), step(S).
+required(v_final(chargeLevel(B), S)==100) :- goal(S), step(S), battery(B).
+
