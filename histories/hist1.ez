@@ -5,5 +5,5 @@ obs(tend(1), 5).
 hpd(remove(b), 1).
 obs(tend(2), 7).
 hpd(insert(b), 2).
-obs(misaligned, true, 4).
+obs(misaligned, true, 5).
 
