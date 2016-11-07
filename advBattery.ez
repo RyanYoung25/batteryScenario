@@ -80,6 +80,7 @@ holds(state(disconnected), S+1) :- occurs(remove(B), S), battery(B), step(S).
 holds(ok(B), S+1) :- occurs(repair(B), S), battery(B), step(S).
 %Executability Condition
 -occurs(repair(B), S) :- holds(ok(B), S), battery(B), step(S).
+-occurs(repair(B), S) :-  holds(charging(B), S), battery(B), step(S).
 
 
 
@@ -95,7 +96,7 @@ holds(misaligned, S+1) :- occurs(start(shake), S), step(S).
 %Attempt at writing the charging. surround head with required
 required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1 *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
 required(v_final(chargeLevel(B), S) <= 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
-ab(chargeLevel(B), S)  :-  holds(charging(B), S), step(S), battery(B).
+ab(chargeLevel(B), S)  :-  holds(charging(B), S), holds(ok(B), S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) < 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
 
 %Casual Laws

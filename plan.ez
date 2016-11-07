@@ -13,16 +13,16 @@ success :- goal(S), step(S), S < n.
 
 
 
-%Initial state:
-holds(state(disconnected), 0). 
-holds(misaligned, 0).
-holds(ok(b), 0).
-required(tstart(0)==0).
-required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
-
-%Goal state:
-
-
-goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), battery(B), step(S).
-required(v_final(chargeLevel(B), S)==100) :- goal(S), step(S), battery(B).
-
+%%Initial state:
+%holds(state(disconnected), 0). 
+%holds(misaligned, 0).
+%holds(ok(b), 0).
+%required(tstart(0)==0).
+%required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
+%
+%%Goal state:
+%
+%
+%goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), battery(B), step(S).
+%required(v_final(chargeLevel(B), S)==100) :- goal(S), step(S), battery(B).
+%

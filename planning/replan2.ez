@@ -1,0 +1,20 @@
+%Replanning where the battery was found to be misaligned at time step 2. 
+% at step 0 the robot inserted battery b and at step 1 it began charging battery b.  
+
+
+%Initial state:
+holds(state(disconnected), 0). 
+-holds(misaligned, 0).
+holds(ok(b), 0).
+required(tstart(0)==0).
+required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
+
+occurs(insert(b), 0).
+occurs(start(charge(b)), 1).
+occurs(bump, 2).
+%Goal state:
+
+
+goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), holds(ok(B),S), battery(B), step(S).
+required(v_final(chargeLevel(B), S)==100) :- goal(S), step(S), battery(B).
+

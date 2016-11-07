@@ -13,12 +13,13 @@ occurs(A,I) :- hpd(A,I).
 % Reality check axiom for numerical variable observations.
 % Only the value at the end of a state can be observed. 
 
-%required(N==v) :- obs(N, v).
-required(v_final(N, S)==v) :- obs(v_final(N, S), v), fluent(numerical, N), step(S).
+required(N == V) :- obs(N, V).
+%ab(N) :- obs(N, V).
+%required(v_final(N, S)==v) :- obs(v_final(N, S), v), fluent(numerical, N), step(S).
 
 % Reality check axiom for step time observations
- required(tstart(S)==v) :- obs(tstart(S), v), step(S).
- required(tend(S)==v) :- obs(tend(S), v), step(S).
+%required(tstart(S)==v) :- obs(tstart(S), v), step(S).
+%required(tend(S)==v) :- obs(tend(S), v), step(S).
 
 % diagnosis: any exogenous action may have occurred
 0{ occurs(E,I) : action(exogenous, E) } :- step(I), I<curr_step.

@@ -78,17 +78,18 @@ holds(state(disconnected), S+1) :- occurs(remove(B), S), battery(B), step(S).
 % Repair the battery
 holds(ok(B), S+1) :- occurs(repair(B), S), battery(B), step(S).
 %Executability Condition
--occurs(repair(B), S) :- holds(ok(B), S), battery(B), step(S).
+-occurs(repair(B), S) :-  holds(ok(B), S), battery(B), step(S).
+-occurs(repair(B), S) :-  holds(charging(B), S), battery(B), step(S).
 
 %Exog action misalignment
 holds(misaligned, S+1) :- occurs(bump, S), step(S).
 
 %Attempt at writing the charging. surround head with required
 %required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp("-0.05" *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
-required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1 *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
-required(v_final(chargeLevel(B), S) <= 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
-%required(v_final(chargeLevel(B), S)==v_initial(chargeLevel(B), S) + 10*(tend(S)-tstart(S)))  :-  holds(charging(B), S), step(S), battery(B).
-ab(chargeLevel(B), S)  :-  holds(charging(B), S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1 *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) <= 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
+%required(v_final(chargeLevel(B), S) == v_initial(chargeLevel(B), S))  :-  holds(charging(B), S), -holds(ok(B)), step(S), battery(B).
+ab(chargeLevel(B), S)  :-  holds(charging(B), S), holds(ok(B), S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) < 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
 
 %Casual Laws
@@ -125,6 +126,7 @@ holds(F, S2) :- step(S), fluent(inertial, F), holds(F, S), not -holds(F, S2), S2
 
 %add some 
 %required(tend(2)==2).
+%required(tstart(0)==0).
 
 %required(v_final(chargeLevel(B), 3)==100) :- battery(B).
 
