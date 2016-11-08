@@ -86,10 +86,11 @@ holds(misaligned, S+1) :- occurs(bump, S), step(S).
 
 %Attempt at writing the charging. surround head with required
 %required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp("-0.05" *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
-required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1 *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
-required(v_final(chargeLevel(B), S) <= 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
+%required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"* (tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) <= 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) == v_initial(chargeLevel(B), S))  :-  holds(charging(B), S), -holds(ok(B)), step(S), battery(B).
-ab(chargeLevel(B), S)  :-  holds(charging(B), S), holds(ok(B), S), step(S), battery(B).
+ab(chargeLevel(B), S)  :-  holds(charging(B), S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) < 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
 
 %Casual Laws

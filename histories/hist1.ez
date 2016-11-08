@@ -1,3 +1,11 @@
+#const curr_step=5.
+%Initial state:
+holds(state(disconnected), 0). 
+-holds(misaligned, 0).
+holds(ok(b), 0).
+required(tstart(0)==0).
+required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
+%Observations
 obs(tstart(0), 0).
 obs(tend(0), 3).
 hpd(insert(b), 0).
@@ -6,4 +14,4 @@ hpd(remove(b), 1).
 obs(tend(2), 7).
 hpd(insert(b), 2).
 obs(misaligned, true, 5).
-
+%Write the tstart and tend as requires in the history

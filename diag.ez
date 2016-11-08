@@ -7,8 +7,8 @@ occurs(A,I) :- hpd(A,I).
 :- fluent(inertial, F), step(I), obs(F,false,I), holds(F,I).
 
 % Reality check axioms for events and processes
-:- occurs(A,I), -hpd(A,I), step(I).
-:- not occurs(A,I), hpd(A,I), step(I).
+%:- occurs(A,I), -hpd(A,I), step(I).
+%:- not occurs(A,I), hpd(A,I), step(I).
 
 % Reality check axiom for numerical variable observations.
 % Only the value at the end of a state can be observed. 
