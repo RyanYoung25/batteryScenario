@@ -16,6 +16,7 @@ step(0..n).
 %Define the fluents
 fluent(inertial, state(C)) :- conn_state(C).
 fluent(inertial, charging(B)) :- battery(B).
+fluent(defined, inUse(B)) :- battery(B).
 %Are these supposed to be inertial?
 fluent(inertial, ok(B)) :- battery(B).
 fluent(inertial, misaligned).
@@ -87,11 +88,13 @@ holds(misaligned, S+1) :- occurs(bump, S), step(S).
 %Attempt at writing the charging. surround head with required
 %required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp("-0.05" *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
-required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"* (tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
-required(v_final(chargeLevel(B), S) <= 95 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"* (tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(connected), S), holds(ok(B), S), step(S), battery(B).
+%Use epsilon
+required(v_final(chargeLevel(B), S) <= 95 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(badly_connected), S), holds(ok(B), S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) == v_initial(chargeLevel(B), S))  :-  holds(charging(B), S), -holds(ok(B)), step(S), battery(B).
 ab(chargeLevel(B), S)  :-  holds(charging(B), S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) < 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) >= v_initial(chargeLevel(B), S))  :-  -holds(inUse(B), S), step(S), battery(B).
 
 %Casual Laws
 %Start charging

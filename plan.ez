@@ -1,15 +1,15 @@
 %Planning module for the battery scenarios
 % we are not equipped for multiple starts of charge
 %:- occurs(start(charge(B)),I1), occurs(start(charge(B),I2), I1!=I2, battery(B), step(I1), step(I2).
-
+qqq(curr_step).
 % planning: we can accelerate or decelerate
-0{pl_occurs(A,S): action(agent, A) }1 :- step(S), not goal(S).
+0{pl_occurs(A,S): action(agent, A) }1 :- step(S), not goal(S), S >= curr_step.
 
 occurs(A,S) :- pl_occurs(A,S).
 % to preserve the semantics of processes, no actions are allowed while a process is terminating
 %:- occurs(end(moving),I), occurs(A,I), A!=end(moving).
 
-success :- goal(S), step(S), S < n.
+success :- goal(S), step(S), S <= n.
 :- not success. %Failure is not an option
 
 %For replanning from a history
@@ -17,6 +17,7 @@ required(N == V) :- obs(N, V).
 
 %Executability condition
 -pl_occurs(start(charge(B)), S) :- -holds(ok(B), S), battery(B), step(S). 
+-pl_occurs(start(charge(B)), S) :- holds(state(badly_connected), S), battery(B), step(S). 
 %-pl_occurs(start(charge(B)), S) :- occurs(remove(B), S), battery(B), step(S). 
 
 %%Initial state:
