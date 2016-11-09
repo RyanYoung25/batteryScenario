@@ -9,12 +9,10 @@ required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
 obs(tstart(0), 0).
 obs(tend(0), 3).
 obs(tend(1), 5).
-obs(tend(2), 9).
-obs(tend(3), "9.8").
-obs(tend(4), 11).
+obs(tend(2), 50).
 hpd(insert(b), 0).
 hpd(start(charge(b)), 1).
 hpd(end(charge(b)), 2).
-hpd(remove(b), 3).
+%hpd(remove(b), 3).
 %The charge level observation that was weird
-obs(v_final(chargeLevel(b), 4), 85).
+obs(v_final(chargeLevel(b), 3), 45).

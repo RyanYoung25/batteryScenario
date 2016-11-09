@@ -9,12 +9,21 @@ holds(ok(b), 0).
 required(tstart(0)==0).
 required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
 
-occurs(insert(b), 1).
-occurs(start(charge(b)), 2).
+occurs(insert(b), 0).
+occurs(start(charge(b)), 1).
 occurs(fail(b), 1).
+occurs(end(charge(b)), 2).
+
+%Observations
+obs(tstart(0), 0).
+obs(tend(0), 3).
+obs(tend(1), 5).
+obs(tend(2), "5.02").
+obs(tend(3), 8).
+obs(tend(4), "8.2").
+obs(v_final(chargeLevel(b), 2), 98).
 
 %Goal state:
-
 
 goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), holds(ok(B),S), battery(B), step(S).
 required(v_final(chargeLevel(B), S)==100) :- goal(S), step(S), battery(B).
