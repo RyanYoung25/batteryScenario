@@ -11,11 +11,13 @@ conn_state(connected).
 conn_state(disconnected). 
 conn_state(badly_connected).
 #const n=10.
+epsilon("0.1").
 step(0..n).
 
 %Define the fluents
 fluent(inertial, state(C)) :- conn_state(C).
 fluent(inertial, charging(B)) :- battery(B).
+fluent(defined, inUse(B)) :- battery(B).
 %Are these supposed to be inertial?
 fluent(inertial, ok(B)) :- battery(B).
 fluent(inertial, misaligned).
@@ -95,18 +97,18 @@ holds(misaligned, S+1) :- occurs(start(shake), S), step(S).
 %Shake must end if it started. 
 1{ occurs(end(shake),I2) : step(I2) : I2 > I1 : I2 < curr_step }1 :- step(I1), occurs(start(shake),I1).
 
-%Attempt at writing the charging. surround head with required
+%Attempt at writing the charging. 
 required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"* (tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(connected), S), holds(ok(B), S), step(S), battery(B).
-required(v_final(chargeLevel(B), S) <= 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(badly_connected), S), holds(ok(B), S), step(S), battery(B).
+%Use epsilon
+required(v_final(chargeLevel(B), S) <= (100 - E) + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(badly_connected), S), holds(ok(B), S), epsilon(E), step(S), battery(B).
 ab(chargeLevel(B), S)  :-  holds(charging(B), S), step(S), battery(B).
-%required(v_final(chargeLevel(B), S) < 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
 
 %Casual Laws
 %Start charging
 holds(charging(B), S+1) :- occurs(start(charge(B)), S), step(S), battery(B).
 %Executability Condition
 -occurs(start(charge(B)), S) :- holds(state(disconnected), S), battery(B), step(S).
--occurs(start(charge(B)), S) :- holds(charging(B)), battery(B), step(S).
+-occurs(start(charge(B)), S) :- holds(charging(B), S), battery(B), step(S).
 
 
 %End Charging
@@ -119,25 +121,6 @@ holds(charging(B), S+1) :- occurs(start(charge(B)), S), step(S), battery(B).
 holds(F, S2) :- step(S), fluent(inertial, F), holds(F, S), not -holds(F, S2), S2=S+1.
 -holds(F, S2) :- step(S), fluent(inertial, F), -holds(F, S), not holds(F, S2), S2=S+1.
 
-%Encode cwa for defined fluents, we don't have defined fluents but good practice
+%Encode cwa for defined fluents.
 -holds(F, S) :- step(S), fluent(defined, F), not holds(F, S).
-
-%Constants I'm trying to use to test. 
-%holds(state(disconnected), 0). 
-%-holds(misaligned, 0).
-%holds(ok(b), 0).
-%required(tstart(0)==0).
-%required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
-
-%Steps of a plan. Is this consistent? 
-%occurs(insert(b), 0).
-%occurs(start(charge(b)), 1).
-%occurs(end(charge(b)), 2).
-
-%add some 
-%required(tend(2)==2).
-
-%required(v_final(chargeLevel(B), 3)==100) :- battery(B).
-
-%Minimize total step size, iterative? Error threshold, continue until the interval delta is less than N.
 

@@ -11,6 +11,7 @@ conn_state(connected).
 conn_state(disconnected). 
 conn_state(badly_connected).
 #const n=10.
+epsilon("0.1").
 step(0..n).
 
 %Define the fluents
@@ -90,7 +91,7 @@ holds(misaligned, S+1) :- occurs(bump, S), step(S).
 %required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
 required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"* (tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(connected), S), holds(ok(B), S), step(S), battery(B).
 %Use epsilon
-required(v_final(chargeLevel(B), S) <= 95 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(badly_connected), S), holds(ok(B), S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) <= (100 - E) + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(badly_connected), S), holds(ok(B), S), epsilon(E), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) == v_initial(chargeLevel(B), S))  :-  holds(charging(B), S), -holds(ok(B)), step(S), battery(B).
 ab(chargeLevel(B), S)  :-  holds(charging(B), S), step(S), battery(B).
 %required(v_final(chargeLevel(B), S) < 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
@@ -101,7 +102,7 @@ required(v_final(chargeLevel(B), S) >= v_initial(chargeLevel(B), S))  :-  -holds
 holds(charging(B), S+1) :- occurs(start(charge(B)), S), step(S), battery(B).
 %Executability Condition
 -occurs(start(charge(B)), S) :- holds(state(disconnected), S), battery(B), step(S).
--occurs(start(charge(B)), S) :- holds(charging(B)), battery(B), step(S).
+-occurs(start(charge(B)), S) :- holds(charging(B), S), battery(B), step(S).
 
 %End Charging
 %Casual Law

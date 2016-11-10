@@ -1,7 +1,6 @@
 %Planning module for the battery scenarios
 % we are not equipped for multiple starts of charge
 %:- occurs(start(charge(B)),I1), occurs(start(charge(B),I2), I1!=I2, battery(B), step(I1), step(I2).
-qqq(curr_step).
 % planning: we can accelerate or decelerate
 0{pl_occurs(A,S): action(agent, A) }1 :- step(S), not goal(S), S >= curr_step.
 

@@ -1,4 +1,4 @@
-#const curr_step=4.
+#const curr_step=5.
 %Initial state:
 holds(state(disconnected), 0). 
 -holds(misaligned, 0).
@@ -11,17 +11,18 @@ obs(tend(0), 1).
 obs(tend(1), 3).
 obs(tend(2), 5).
 obs(tend(3), 50).
-%obs(ok(b), true, 0).
-%obs(ok(b), true, 1).
-%obs(ok(b), true, 2).
--occurs(fail(b), 0).
--occurs(fail(b), 1).
--occurs(fail(b), 2).
+obs(ok(b), true, 0).
+obs(ok(b), true, 1).
+obs(ok(b), true, 2).
+obs(ok(b), true, 3).
+obs(ok(b), true, 4).
+obs(ok(b), true, 5).
 hpd(insert(b), 1).
 hpd(start(charge(b)), 2).
 hpd(end(charge(b)), 3).
-%hpd(remove(b), 3).
-%The charge level observation that was weird
-obs(v_final(chargeLevel(b), 3), 45).
+obs(misaligned, false, 5).
 
-%Expected: bump should have occured at step 0
+obs(v_final(chargeLevel(b), 3), 45).
+%Write the tstart and tend as requires in the history
+
+%Should see shake occuring at 0 and ending before 5. 
