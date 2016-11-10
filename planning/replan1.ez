@@ -2,6 +2,7 @@
 %The battery was found to be not ok at state 3, after
 %  during step 1 the robot inserted the battery and step 2 it began charging
 
+#const curr_step=4.
 %Initial state:
 holds(state(disconnected), 0). 
 -holds(misaligned, 0).
@@ -25,6 +26,5 @@ obs(v_final(chargeLevel(b), 2), 98).
 
 %Goal state:
 
-goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), holds(ok(B),S), battery(B), step(S).
-required(v_final(chargeLevel(B), S)==100) :- goal(S), step(S), battery(B).
-
+goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), holds(ok(B),S), battery(B), step(S), S==n.
+required(v_final(chargeLevel(B), S)==100) :- step(S), battery(B), S==n.

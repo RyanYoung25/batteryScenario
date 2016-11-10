@@ -14,4 +14,4 @@ hpd(remove(b), 1).
 obs(tend(2), 7).
 hpd(insert(b), 2).
 obs(misaligned, true, 5).
-%Write the tstart and tend as requires in the history
+%Should have bump occur at step 4. 

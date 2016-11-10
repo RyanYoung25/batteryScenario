@@ -1,4 +1,5 @@
 
+#const curr_step=4.
 %Initial state:
 holds(state(disconnected), 0). 
 -holds(misaligned, 0).

@@ -18,3 +18,5 @@ hpd(end(charge(b)), 2).
 hpd(remove(b), 3).
 %The charge level observation that was weird
 obs(v_final(chargeLevel(b), 2), 98).
+
+%Expected: fail should have occured at step 0 or step 1. 
