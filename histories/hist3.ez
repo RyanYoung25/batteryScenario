@@ -1,6 +1,10 @@
-#const curr_step=4.
+% run with:
+%   ezcsp --mkatoms --gams:knitro basicBattery.ez histories/hist3.ez diag.ez
+%
+#const curr_step=5.
 %Initial state:
 holds(state(disconnected), 0). 
+-holds(holding(b), 0).
 -holds(misaligned, 0).
 holds(ok(b), 0).
 required(tstart(0)==0).
@@ -8,15 +12,17 @@ required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
 %Observations
 obs(tstart(0), 0).
 obs(tend(0), 3).
-obs(tend(1), 5).
-obs(tend(2), "5.02").
-obs(tend(3), 8).
-obs(tend(4), "8.2").
-hpd(insert(b), 0).
-hpd(start(charge(b)), 1).
-hpd(end(charge(b)), 2).
-hpd(remove(b), 3).
+obs(tend(1), 4).
+obs(tend(2), 5).
+obs(tend(3), "5.02").
+obs(tend(4), 8).
+obs(tend(5), "8.2").
+hpd(pick_up(b), 0).
+hpd(insert(b), 1).
+hpd(start(charge(b)), 2).
+hpd(end(charge(b)), 3).
+hpd(remove(b), 4).
 %The charge level observation that was weird
-obs(v_final(chargeLevel(b), 2), 98).
+obs(v_final(chargeLevel(b), 3), 98).
 
 %Expected: fail should have occured at step 0 or step 1. 

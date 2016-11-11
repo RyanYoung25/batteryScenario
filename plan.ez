@@ -2,6 +2,12 @@
 % we are not equipped for multiple starts of charge
 %:- occurs(start(charge(B)),I1), occurs(start(charge(B),I2), I1!=I2, battery(B), step(I1), step(I2).
 % planning: we can accelerate or decelerate
+% [MB 11/10/16] Lower bound of the choice atom changed from 0 to 1 to prevent the planner from generating "nop" steps
+%               CORRECTION: bad idea. There are cases in which we cannot find n actions that achieve the goal at
+%                           step n. We can find n-1 actions, but then the choice rule forces the selection of
+%                           an n^th action, and such action undoes the goal, causing the program to become
+%                           inconsistent.
+%
 0{pl_occurs(A,S): action(agent, A) }1 :- step(S), not goal(S), S >= curr_step.
 
 occurs(A,S) :- pl_occurs(A,S).

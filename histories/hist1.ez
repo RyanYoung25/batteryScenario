@@ -1,6 +1,10 @@
+% run with:
+%   ezcsp --mkatoms --gams:knitro basicBattery.ez histories/hist1.ez diag.ez
+%
 #const curr_step=5.
 %Initial state:
 holds(state(disconnected), 0). 
+-holds(holding(b), 0).
 -holds(misaligned, 0).
 holds(ok(b), 0).
 required(tstart(0)==0).
@@ -8,10 +12,12 @@ required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
 %Observations
 obs(tstart(0), 0).
 obs(tend(0), 3).
-hpd(insert(b), 0).
-obs(tend(1), 5).
-hpd(remove(b), 1).
-obs(tend(2), 7).
-hpd(insert(b), 2).
+hpd(pick_up(b), 0).
+obs(tend(1), 4).
+hpd(insert(b), 1).
+obs(tend(2), 5).
+hpd(remove(b), 2).
+obs(tend(3), 7).
+hpd(insert(b), 3).
 obs(misaligned, true, 5).
 %Should have bump occur at step 4. 

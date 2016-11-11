@@ -1,8 +1,12 @@
-
-#const curr_step=4.
+% run with:
+%   ezcsp --mkatoms --gams:knitro basicBattery.ez planning/plan.ez plan.ez
+%
+#const curr_step=0.
 %Initial state:
 holds(state(disconnected), 0). 
+-holds(holding(b), 0).
 -holds(misaligned, 0).
+-holds(charging(b), 0).
 holds(ok(b), 0).
 required(tstart(0)==0).
 required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
@@ -10,6 +14,5 @@ required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
 %Goal state:
 
 
-goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), holds(ok(B), S), battery(B), step(S).
-required(v_final(chargeLevel(B), S)==100) :- goal(S), step(S), battery(B).
-
+goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), holds(ok(B),S), battery(B), step(S), S==n.
+required(v_final(chargeLevel(B), S)==100) :- step(S), battery(B), S==n.

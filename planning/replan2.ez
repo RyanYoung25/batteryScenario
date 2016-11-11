@@ -1,14 +1,21 @@
+% run with:
+%   ezcsp --mkatoms --gams:knitro basicBattery.ez planning/replan2.ez plan.ez
+%
+
 %Replanning where the battery was found to be misaligned at time step 2. 
 % at step 0 the robot inserted battery b and at step 1 it began charging battery b.  
 
 #const curr_step=4.
 %Initial state:
 holds(state(disconnected), 0). 
+-holds(holding(b), 0).
 -holds(misaligned, 0).
+-holds(charging(b), 0).
 holds(ok(b), 0).
 required(tstart(0)==0).
 required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
 
+occurs(pick_up(b), 0).
 occurs(insert(b), 1).
 occurs(start(charge(b)), 2).
 occurs(bump, 0).

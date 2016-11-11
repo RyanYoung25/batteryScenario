@@ -1,6 +1,10 @@
+% run with:
+%   ezcsp --mkatoms --gams:knitro basicBattery.ez histories/hist2.ez diag.ez
+%
 #const curr_step=4.
 %Initial state:
 holds(state(disconnected), 0). 
+-holds(holding(b), 0).
 -holds(misaligned, 0).
 holds(ok(b), 0).
 required(tstart(0)==0).
@@ -17,6 +21,7 @@ obs(tend(3), 50).
 -occurs(fail(b), 0).
 -occurs(fail(b), 1).
 -occurs(fail(b), 2).
+hpd(pick_up(b), 0).
 hpd(insert(b), 1).
 hpd(start(charge(b)), 2).
 hpd(end(charge(b)), 3).
