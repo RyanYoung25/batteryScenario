@@ -1,6 +1,10 @@
+% run with:
+%   ezcsp --mkatoms --gams:knitro advBattery.ez histories/advHist1.ez diag.ez
+%
 #const curr_step=5.
 %Initial state:
 holds(state(disconnected), 0). 
+-holds(holding(b), 0).
 -holds(misaligned, 0).
 holds(ok(b), 0).
 required(tstart(0)==0).
@@ -17,12 +21,13 @@ obs(ok(b), true, 2).
 obs(ok(b), true, 3).
 obs(ok(b), true, 4).
 obs(ok(b), true, 5).
+hpd(pick_up(b), 0).
 hpd(insert(b), 1).
 hpd(start(charge(b)), 2).
 hpd(end(charge(b)), 3).
-obs(misaligned, false, 5).
+obs(misaligned, false, 4).
 
-obs(v_final(chargeLevel(b), 3), 45).
+obs(v_final(chargeLevel(b), 4), 45).
 %Write the tstart and tend as requires in the history
 
 %Should see shake occuring at 0 and ending before 5. 

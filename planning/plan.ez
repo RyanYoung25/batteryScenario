@@ -1,5 +1,7 @@
 % run with:
 %   ezcsp --mkatoms --gams:knitro basicBattery.ez planning/plan.ez plan.ez
+% or
+%   ezcsp --mkatoms --gams:knitro advBattery.ez planning/plan.ez plan.ez
 %
 #const curr_step=0.
 %Initial state:

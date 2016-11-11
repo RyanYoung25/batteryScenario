@@ -20,6 +20,10 @@ fluent(inertial, charging(B)) :- battery(B).
 fluent(defined, inUse(B)) :- battery(B).
 %Are these supposed to be inertial?
 fluent(inertial, ok(B)) :- battery(B).
+%
+% IMPORTANT: misaligned means that "the robot is misaligned with the charger." 
+%            Thus, insert will result in a badly connected battery with the charger.
+%
 fluent(inertial, misaligned).
 fluent(inertial, holding(B)) :- battery(B).
 % Numerical fluent chargeLevel
@@ -52,8 +56,6 @@ action(agent, pick_up(B)) :- battery(B).
 
 action(agent, insert(B)) :- battery(B).
 action(agent, remove(B)) :- battery(B).
-
-action(agent, pick_up(B)) :- battery(B).
 
 action(exogenous, fail(B)) :- battery(B).
 action(agent, repair(B)) :- battery(B).

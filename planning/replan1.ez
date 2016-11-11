@@ -1,6 +1,7 @@
 % run with:
 %   ezcsp --mkatoms --gams:knitro basicBattery.ez planning/replan1.ez plan.ez
-%
+% OR
+%   ezcsp --mkatoms --gams:knitro advBattery.ez planning/replan1.ez plan.ez
 
 %The battery was found to be not ok at state 3, after
 %  during step 1 the robot inserted the battery and step 2 it began charging

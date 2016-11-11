@@ -1,0 +1,5 @@
+Gringo 3.x is REQUIRED to run these encodings.
+Gringo 4.x is not compatible with the syntax we used.
+If needed, select the grounder that ezcsp should use with command line option:
+
+--grounder /path/to/gringo/3.x

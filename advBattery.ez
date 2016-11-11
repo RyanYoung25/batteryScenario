@@ -20,7 +20,12 @@ fluent(inertial, charging(B)) :- battery(B).
 fluent(defined, inUse(B)) :- battery(B).
 %Are these supposed to be inertial?
 fluent(inertial, ok(B)) :- battery(B).
+%
+% IMPORTANT: misaligned means that "the robot is misaligned with the charger." 
+%            Thus, insert will result in a badly connected battery with the charger.
+%
 fluent(inertial, misaligned).
+fluent(inertial, holding(B)) :- battery(B).
 % Numerical fluent chargeLevel
 fluent(numerical, chargeLevel(B)) :- battery(B).
 % cspvars 
@@ -47,6 +52,8 @@ required(v_initial(chargeLevel(B),I)==v_final(chargeLevel(B),I)) :- step(I), bat
 -holds(state(C1), S) :- holds(state(C2), S), step(S), conn_state(C1), conn_state(C2), C1!=C2.
 
 %Define the actions
+action(agent, pick_up(B)) :- battery(B).
+
 action(agent, insert(B)) :- battery(B).
 action(agent, remove(B)) :- battery(B).
 
@@ -60,18 +67,25 @@ action(exogenous, start(shake)).
 action(exogenous, end(shake)).
 
 %Casual Laws
+holds(holding(B),S+1) :- occurs(pick_up(B),S), battery(B), step(S).
+-occurs(pick_up(B),S) :- holds(holding(B),S), battery(B), step(S).
+
 %Insert the battery into the charger
 holds(state(connected), S+1) :- occurs(insert(B), S), -holds(misaligned, S), battery(B), step(S).
 holds(state(badly_connected), S+1) :- occurs(insert(B), S),  holds(misaligned, S), battery(B), step(S).
+-holds(holding(B),S+1) :- occurs(insert(B),S), battery(B), step(S).
 %Executability condition
 -occurs(insert(B), S) :- -holds(state(disconnected), S), battery(B), step(S).
+-occurs(insert(B), S) :- -holds(holding(B), S), battery(B), step(S).
 
 %Casual Laws
 %Remove the battery from the charger Add realignment
 holds(state(disconnected), S+1) :- occurs(remove(B), S), battery(B), step(S).
+holds(holding(B), S+1) :- occurs(remove(B), S), battery(B), step(S).
 %Executability Condition
 -occurs(remove(B), S) :- holds(state(disconnected), S), battery(B), step(S).
 -occurs(remove(B), S) :- holds(charging(B), S), battery(B), step(S).
+-occurs(remove(B), S) :- holds(holding(B), S), battery(B), step(S).
 
 % Exog action fail
 -holds(ok(B), S+1) :- occurs(fail(B), S), battery(B), step(S).
