@@ -1,0 +1,25 @@
+basic Battery: 
+plan -  real 0m0.218s
+        user 0m0.156s
+        sys 0m0.008s
+
+replan1 -   real 0m0.272s
+            user 0m0.172s
+            sys 0m0.040s
+
+replan2 -   real0m0.247s
+            user0m0.164s
+            sys0m0.020s
+
+hist1 -     real 0m0.158s
+            user 0m0.108s
+            sys 0m0.020s
+
+hist2 -     real 0m0.210s
+            user 0m0.148s
+            sys 0m0.020s
+
+hist3 -     real 0m0.256s
+            user 0m0.156s
+            sys 0m0.032s
+
