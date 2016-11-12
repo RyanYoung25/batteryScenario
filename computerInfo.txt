@@ -1,0 +1,16 @@
+Time results were based off of running with the following versions:
+
+ezcsp       Version 1.7.7
+B-Prolog    Version 7.5#9
+dlv_rsig    Version 1.8.10
+GAMS        Version 24.5.6 64bit/Linux
+clasp       Version 3.1.3
+gringo      Version 3.0.5 
+mkatoms     Version 2.16
+
+The computer running these experiments had: 
+
+8 GB ram
+Intel Core i5-2520M CPU @ 2.50GHz x 4
+64-bit Ubuntu 14.04
+

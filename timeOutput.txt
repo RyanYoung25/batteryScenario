@@ -1,0 +1,19 @@
+
+Planning:
+5 loops, best of 20: 148 msec per loop
+Replan 1 (Scenario 2):
+5 loops, best of 20: 149 msec per loop
+Replan 2 (Scenario 1):
+5 loops, best of 20: 145 msec per loop
+Hist 2 (Scenario 1):
+5 loops, best of 20: 145 msec per loop
+Hist 3 (Scenario 2):
+5 loops, best of 20: 142 msec per loop
+Adv Replan 2 (Scenario 3):
+5 loops, best of 20: 144 msec per loop
+Replan 1 (Scenario 4):
+5 loops, best of 20: 148 msec per loop
+Adv Hist 1 (Scenario 3):
+5 loops, best of 20: 142 msec per loop
+Hist 3 (Scenario 4):
+5 loops, best of 20: 143 msec per loop
