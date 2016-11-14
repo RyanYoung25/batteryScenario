@@ -94,7 +94,7 @@ holds(holding(B), S+1) :- occurs(remove(B), S), battery(B), step(S).
 % Repair the battery
 holds(ok(B), S+1) :- occurs(repair(B), S), battery(B), step(S).
 %Executability Condition
--occurs(repair(B), S) :-  holds(ok(B), S), battery(B), step(S).
+%-occurs(repair(B), S) :-  holds(ok(B), S), battery(B), step(S).
 -occurs(repair(B), S) :-  holds(charging(B), S), battery(B), step(S).
 
 %Exog action misalignment
