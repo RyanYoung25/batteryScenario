@@ -1,0 +1,46 @@
+% run with:
+%   ezcsp --mkatoms --gams:knitro basicBattery-learn.ez planning/replan1-learn.ez plan.ez
+% ///OR
+% ///  ezcsp --mkatoms --gams:knitro advBattery.ez planning/replan1-learn.ez plan.ez
+
+%The battery was found to be not ok at state 3, after
+#const curr_step=4.
+%Initial state:
+holds(state(disconnected), 0). 
+-holds(holding(b), 0).
+-holds(misaligned, 0).
+holds(ok(b), 0).
+required(tstart(0)==0).
+required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
+required(v_initial(chargeRate(B), 0)==1) :- battery(B).
+
+
+%Expected: fail occured at 2 and v_initial(chargeRate(b), 3)=5.21825471
+% right now, it returns fail @ 2 as first answer set
+
+%Observations
+obs(tstart(0), 0).
+obs(tend(0), 1).
+obs(tend(1), 3).
+obs(tend(2), 5).
+obs(tend(3), 50).
+occurs(pick_up(b), 0).
+occurs(insert(b), 1).
+occurs(start(charge(b)), 2).
+%occurs(end(charge(b)), 3).
+%occurs(remove(b), 3).
+obs(v_final(chargeLevel(b), 3), 45).
+
+%Hypotheses
+occurs(fail(b),2).
+required(v_initial(chargeRate(b), 3)=="5.21825471").
+
+%Goal state:
+
+%goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), holds(ok(B),S), battery(B), step(S), S==n.
+goal(S) :- -holds(charging(B), S), holds(state(disconnected), S), battery(B), step(S), S==n.
+required(v_final(chargeLevel(B), S)==100) :- step(S), battery(B), S==n.
+
+% Expected: (other time steps are possible)
+%occurs(end(charge(b)), 4).
+%occurs(remove(b), 5

@@ -1,0 +1,169 @@
+% Start State= 
+% ok(battery), chargeLevel(battery)=0%, state(disconnected)
+% Goal State=
+% ok(battery), chargeLevel(battery)=100%, state(disconnected)
+
+cspdomain(nlp).
+
+%Define the types
+battery(b). 
+conn_state(connected). 
+conn_state(disconnected). 
+conn_state(badly_connected).
+#const n=10.
+epsilon("0.1").
+step(0..n).
+
+%Define the fluents
+fluent(inertial, state(C)) :- conn_state(C).
+fluent(inertial, charging(B)) :- battery(B).
+fluent(defined, inUse(B)) :- battery(B).
+%Are these supposed to be inertial?
+fluent(inertial, ok(B)) :- battery(B).
+%
+% IMPORTANT: misaligned means that "the robot is misaligned with the charger." 
+%            Thus, insert will result in a badly connected battery with the charger.
+%
+fluent(inertial, misaligned).
+fluent(inertial, holding(B)) :- battery(B).
+% Numerical fluent chargeLevel
+fluent(numerical, chargeLevel(B)) :- battery(B).
+fluent(numerical, chargeRate(B)) :- battery(B).
+% cspvars 
+
+cspvar(tstart(I)) :- step(I).
+required(tstart(I) >= 0) :- step(I).
+cspvar(tend(I)) :- step(I).
+required(tend(I) >= 0) :- step(I).
+required(tstart(I2)==tend(I1)) :- step(I1), step(I2), I2=I1+1.
+required(tend(I)>=tstart(I)) :- step(I).
+
+cspvar(v_initial(chargeLevel(B), I)) :- battery(B), step(I).
+cspvar(v_final(chargeLevel(B), I)) :- battery(B), step(I).
+required(v_initial(chargeLevel(B), I) >= 0) :- battery(B), step(I). 
+required(v_final(chargeLevel(B), I) >= 0) :- battery(B), step(I).
+
+% the higher the number, the slower the charge
+cspvar(v_initial(chargeRate(B), I)) :- battery(B), step(I).
+cspvar(v_final(chargeRate(B), I)) :- battery(B), step(I).
+required(v_initial(chargeRate(B), I) <= 9.48773624) :- battery(B), step(I). 
+required(v_final(chargeRate(B), I) <= 9.48773624) :- battery(B), step(I).
+required(v_initial(chargeRate(B), I) >= 1) :- battery(B), step(I). 
+required(v_final(chargeRate(B), I) >= 1) :- battery(B), step(I).
+
+% v_initial(v,I+1)=v_final(v,I)
+required(v_initial(chargeLevel(B),I2)==v_final(chargeLevel(B),I1)) :- step(I1), step(I2), battery(B), I2=I1+1.
+required(v_initial(chargeRate(B),I2)==v_final(chargeRate(B),I1)) :- step(I1), step(I2), battery(B), I2=I1+1, not abDir(chargeRate(B),I1).
+
+% inertia of numerical fluent v
+required(v_initial(chargeLevel(B),I)==v_final(chargeLevel(B),I)) :- step(I), battery(B), not ab(chargeLevel(B),I).
+required(v_initial(chargeRate(B),I)==v_final(chargeRate(B),I)) :- step(I), battery(B), not ab(chargeRate(B),I).
+
+% We can't be in more than one charging state at once
+-holds(state(C1), S) :- holds(state(C2), S), step(S), conn_state(C1), conn_state(C2), C1!=C2.
+
+%Define the actions
+action(agent, pick_up(B)) :- battery(B).
+
+action(agent, insert(B)) :- battery(B).
+action(agent, remove(B)) :- battery(B).
+
+action(exogenous, fail(B)) :- battery(B).
+action(agent, repair(B)) :- battery(B).
+
+action(agent, start(charge(B))) :- battery(B).
+action(agent, end(charge(B))) :- battery(B).
+
+%action(exogenous, bump).
+
+%Casual Laws
+holds(holding(B),S+1) :- occurs(pick_up(B),S), battery(B), step(S).
+-occurs(pick_up(B),S) :- holds(holding(B),S), battery(B), step(S).
+
+%Insert the battery into the charger
+holds(state(connected), S+1) :- occurs(insert(B), S), -holds(misaligned, S), battery(B), step(S).
+holds(state(badly_connected), S+1) :- occurs(insert(B), S),  holds(misaligned, S), battery(B), step(S).
+-holds(holding(B),S+1) :- occurs(insert(B),S), battery(B), step(S).
+%Executability condition
+-occurs(insert(B), S) :- -holds(state(disconnected), S), battery(B), step(S).
+-occurs(insert(B), S) :- -holds(holding(B), S), battery(B), step(S).
+
+%Casual Laws
+%Remove the battery from the charger Add realignment
+holds(state(disconnected), S+1) :- occurs(remove(B), S), battery(B), step(S).
+-holds(misaligned, S+1) :- occurs(remove(B), S), battery(B), step(S).
+holds(holding(B), S+1) :- occurs(remove(B), S), battery(B), step(S).
+%Executability Condition
+-occurs(remove(B), S) :- holds(state(disconnected), S), battery(B), step(S).
+-occurs(remove(B), S) :- holds(charging(B), S), battery(B), step(S).
+-occurs(remove(B), S) :- holds(holding(B), S), battery(B), step(S).
+
+% Exog action fail
+-holds(ok(B), S+1) :- occurs(fail(B), S), battery(B), step(S).
+abDir(chargeRate(B), S) :- occurs(fail(B),S), battery(B), step(S).
+
+%Casual Law
+% Repair the battery
+holds(ok(B), S+1) :- occurs(repair(B), S), battery(B), step(S).
+abDir(chargeRate(B), S) :- occurs(fail(B),S), battery(B), step(S).
+required(v_final(chargeRate(B), S2) == 1) :- occurs(repair(B), S1), battery(B), step(S1), step(S2), S2=S1+1.
+%Executability Condition
+%-occurs(repair(B), S) :-  holds(ok(B), S), battery(B), step(S).
+-occurs(repair(B), S) :-  holds(charging(B), S), battery(B), step(S).
+
+%Exog action misalignment
+holds(misaligned, S+1) :- occurs(bump, S), step(S).
+
+%Attempt at writing the charging. surround head with required
+%required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp("-0.05" *(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), step(S), battery(B).
+%required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), -holds(misaligned, S), holds(ok(B), S), step(S), battery(B).
+%%%%%%%%required(v_final(chargeLevel(B), S) == 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"* (tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(connected), S), holds(ok(B), S), step(S), battery(B).
+%Use epsilon
+required(v_final(chargeLevel(B), S) <= (100 - E) + (v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(badly_connected), S), holds(ok(B), S), epsilon(E), step(S), battery(B).
+%required(v_final(chargeLevel(B), S) == v_initial(chargeLevel(B), S))  :-  holds(charging(B), S), -holds(ok(B)), step(S), battery(B).
+ab(chargeLevel(B), S)  :-  holds(charging(B), S), step(S), battery(B).
+%required(v_final(chargeLevel(B), S) < 100 + (v_initial(chargeLevel(B), S) - 100)*exp(-1*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(misaligned, S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) >= v_initial(chargeLevel(B), S))  :-  holds(charging(B),S), step(S), battery(B).
+required(v_final(chargeLevel(B), S) == 100 + v_initial(chargeRate(B),S)*(v_initial(chargeLevel(B), S) - 100)*exp(-1*"0.05"*(tend(S)-tstart(S))))  :-  holds(charging(B), S), holds(state(connected), S), step(S), battery(B).
+
+
+%Casual Laws
+%Start charging
+holds(charging(B), S+1) :- occurs(start(charge(B)), S), step(S), battery(B).
+%Executability Condition
+-occurs(start(charge(B)), S) :- holds(state(disconnected), S), battery(B), step(S).
+-occurs(start(charge(B)), S) :- holds(charging(B), S), battery(B), step(S).
+
+%End Charging
+%Casual Law
+-holds(charging(B), S+1) :- occurs(end(charge(B)), S), step(S), battery(B). 
+%Executability Condition
+-occurs(end(charge(B)), S) :- -holds(charging(B), S), battery(B), step(S).
+
+%Encode intertia
+holds(F, S2) :- step(S), fluent(inertial, F), holds(F, S), not -holds(F, S2), S2=S+1.
+-holds(F, S2) :- step(S), fluent(inertial, F), -holds(F, S), not holds(F, S2), S2=S+1.
+
+%Encode cwa for defined fluents, we don't have defined fluents but good practice
+-holds(F, S) :- step(S), fluent(defined, F), not holds(F, S).
+
+%Constants I'm trying to use to test. 
+%holds(state(disconnected), 0). 
+%-holds(misaligned, 0).
+%holds(ok(b), 0).
+%required(tstart(0)==0).
+%required(v_initial(chargeLevel(B), 0)==0) :- battery(B).
+
+%Steps of a plan. Is this consistent? 
+%occurs(insert(b), 0).
+%occurs(start(charge(b)), 1).
+%occurs(end(charge(b)), 2).
+
+%add some 
+%required(tend(2)==2).
+%required(tstart(0)==0).
+
+%required(v_final(chargeLevel(B), 3)==100) :- battery(B).
+
+%Minimize total step size, iterative? Error threshold, continue until the interval delta is less than N.
+
